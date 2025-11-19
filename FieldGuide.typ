@@ -28,6 +28,7 @@
   Keyword,
   NoKeyword,
   AutoSymbolize,
+  NoSymbolize,
   Util-size2char,
   Util-size2num,
   //Images

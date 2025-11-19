@@ -118,6 +118,7 @@
   set par(leading: 0.5em, spacing: 1.5em)
   set par(justify: true)
   set list(indent: 0pt, body-indent: 1.5em)
+  show list: set par(justify: false)
   set enum(indent: 1em)
   set heading(numbering: (..arr) => numbering("1.1", ..arr.pos().map(x => calc.max(0, x - 1))))
   show par: it => block(breakable: false)[#it]
@@ -402,6 +403,7 @@
 }
 
 #let LoreBox(body) = {
+  set par(justify: false)
   box(fill: red, inset: 0.8em, strong(text(fill: white, body)))
 }
 
@@ -470,6 +472,7 @@
       }
 
       #set par(spacing: 0.75em)
+      #set par(justify: false);
       #AutoSymbolize(txt)
       #if (txt != none and flavor_text != none and flavor_text != "") {
         v(-0.5em) + repeat[.]
@@ -1549,6 +1552,8 @@
 
   pagebreak(weak: true)
 
+  set par(justify: false)
+
   let lbl = label("topofbox_" + frame.name)
 
   let f = figure(placement: top, scope: "parent", [
@@ -1692,6 +1697,8 @@
 #let PlaceNPC(frame, base_systems, optional_systems, background: none) = {
   //Create the statblock. Short little two colum thing.
   //Matches the stats from frames.json
+  //
+  set par(justify: false)
   let StatBlock(stats, tier) = {
     tier = tier - 1
     text(size: 16pt)[*MECH SKILLS*]

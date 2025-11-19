@@ -135,27 +135,51 @@
   TierCustom: text(top-edge: "bounds", baseline: 1pt, font: "compcon", [\u{E91B}]),
 )
 
+
+
+#let disable_symbolize = state("disable_symbolize", false)
+
 #let AutoSymbolize(s) = {
-  show regex("\b(Threat|THREAT)\b"): CC.Threat
-  show regex("\b(Range|RANGE)\b"): CC.Range
-  show regex("\b(Line|LINE)\b"): CC.Line
-  show regex("\bLine of Sight\b"): "line of sight"
-  show regex("\Sensor Range\b"): "sensor range"
-  show regex("\b(Blast|BLAST)\b"): CC.Blast
-  show regex("\b(Burst|BURST)\b"): CC.Burst
-  show regex("\b(Cone|CONE)\b"): CC.Cone
-  show regex("\b(Accuracy|ACCURACY)\b"): CC.Accuracy
-  show regex("\b(Difficulty|DIFFICULTY)\b"): CC.Difficulty
-  show regex("\b(Kinetic|KINETIC)\b"): CC.Kinetic
-  show regex("\b(Explosive|EXPLOSTIVE)\b"): CC.Explosive
-  show regex("\b(Energy|ENERGY)\b"): CC.Energy
-  show regex("\b(Burn|BURN)\b"): CC.Burn
-  show regex("\b(Variable|VARIABLE)\b"): CC.Variable
-  show regex("\b(Heat|HEAT)\b"): CC.Heat
+  let disable_if(it, sym) = {
+    context if (not disable_symbolize.get()) {
+      sym
+    } else {
+      it
+    }
+  }
+  show regex("\b(Threat|THREAT)\b"): it => disable_if(it, CC.Threat)
+  show regex("\b(Range|RANGE)\b"): it => disable_if(it, CC.Range)
+  show regex("\b(Line|LINE)\b"): it => disable_if(it, CC.Line)
+  show regex("\bLine of Sight\b"): it => disable_if(it, "line of sight")
+  show regex("\Sensor Range\b"): it => disable_if(it, "sensor range")
+  show regex("\b(Blast|BLAST)\b"): it => disable_if(it, CC.Blast)
+  show regex("\b(Burst|BURST)\b"): it => disable_if(it, CC.Burst)
+  show regex("\b(Cone|CONE)\b"): it => disable_if(it, CC.Cone)
+  show regex("\b(Accuracy|ACCURACY)\b"): it => disable_if(it, CC.Accuracy)
+  show regex("\b(Difficulty|DIFFICULTY)\b"): it => disable_if(it, CC.Difficulty)
+  show regex("\b(Kinetic|KINETIC)\b"): it => disable_if(it, CC.Kinetic)
+  show regex("\b(Explosive|EXPLOSTIVE)\b"): it => disable_if(it, CC.Explosive)
+  show regex("\b(Energy|ENERGY)\b"): Cit => disable_if(it, C.Energy)
+  show regex("\b(Burn|BURN)\b"): it => disable_if(it, CC.Burn)
+  show regex("\b(Variable|VARIABLE)\b"): it => disable_if(it, CC.Variable)
+  show regex("\b(Heat|HEAT)\b"): it => disable_if(it, CC.Heat)
   s
 }
 
-#let horus-subtle = gradient.linear(purple.darken(60%), purple.darken(20%), purple.darken(60%), angle: 0deg, relative: "parent")
+
+#let NoSymbolize(s) = {
+  disable_symbolize.update(true)
+  s
+  disable_symbolize.update(false)
+}
+
+#let horus-subtle = gradient.linear(
+  purple.darken(60%),
+  purple.darken(20%),
+  purple.darken(60%),
+  angle: 0deg,
+  relative: "parent",
+)
 #let horus-blatant = gradient.radial(
   (green.darken(25%), 0%),
   (green.darken(25%), 25%),
@@ -167,13 +191,17 @@
 #let Sanitize(s) = {
   show regex("(<br>)+"): v(1em, weak: true)
   show regex("</li>"): v(1em, weak: true)
-  show regex("<i>(.*?)</i>") : it => emph(it.text.slice(3, -4))
-  show regex("<b>(.*?)</b>") : it => strong(it.text.slice(3, -4))
-  show regex("<ul>(.*?)\z") : it => v(1em, weak: true) + list(..it.text.slice(8).split("<li>")) + v(1em, weak: true)
-  show regex("<ul>(.*?)</ul>") : it => v(1em, weak: true) + list(..it.text.slice(8, -5).split("<li>")) + v(1em, weak: true)
-  show regex("<ul>(.*?)<ul>") : it => v(1em, weak: true) + list(..it.text.slice(8, -4).split("<li>")) + v(1em, weak: true)
-  show regex("<span class='horus--subtle'>(.*?)</span>"): it =>text(fill: horus-subtle, it.text.slice(28, -7))
-  show regex("<code class='horus'>(.*?)</code>"): it =>text(fill: horus-blatant, it.text.slice(20, -7))
+  show regex("<i>(.*?)</i>"): it => emph(it.text.slice(3, -4))
+  show regex("<b>(.*?)</b>"): it => strong(it.text.slice(3, -4))
+  show regex("<ul>(.*?)\z"): it => v(1em, weak: true) + list(..it.text.slice(8).split("<li>")) + v(1em, weak: true)
+  show regex("<ul>(.*?)</ul>"): it => (
+    v(1em, weak: true) + list(..it.text.slice(8, -5).split("<li>")) + v(1em, weak: true)
+  )
+  show regex("<ul>(.*?)<ul>"): it => (
+    v(1em, weak: true) + list(..it.text.slice(8, -4).split("<li>")) + v(1em, weak: true)
+  )
+  show regex("<span class='horus--subtle'>(.*?)</span>"): it => text(fill: horus-subtle, it.text.slice(28, -7))
+  show regex("<code class='horus'>(.*?)</code>"): it => text(fill: horus-blatant, it.text.slice(20, -7))
   s
 }
 
@@ -181,10 +209,12 @@
 #let disable_keyword = state("disable_keyword", false)
 
 #let Keyword(s) = {
+  disable_symbolize.update(true)
   show regex("\p{Ll}+"): it => {
     text(0.7 * 1em, upper(it.text))
   }
   [*#text(spacing: 80%, s)*]
+  disable_symbolize.update(false)
 }
 
 #let NoKeyword(s) = {
@@ -195,8 +225,8 @@
 
 #let ApplyKeywords(s) = {
   show regex(
-    "\b(Accuracy|Difficulty|Grit|HP|Size|Evasion|E-Defense|Speed|Hit Points|Hull|Agility|Systems|Engineering|Frame|Size|Armor|Core System|Mounts|Main|Auxiliary|Heavy|Superheavy|CQB|Rifle|Rifles|Launcher|Launchers|Cannon|Cannons|Nexus|Threat|CP|Core Power|SP|System Points|Full Repair|Structure|Repair Cap|Sensors|Tech Attack|Heat Cap|Stress|Save Target|Boost|Boosts|Range|Overwatch|Grappling|Improvised Attacks|Knockback|Grapple|Ram|Stunned|Immobilized|Prone|Impaired|Slowed|Lock On|Drone|Drones|Shredded|Engaged|Melee|Resistance|Line|Burst|Blast|Cone|Limited|Jammed|Mount|Dismount|Shut Down|Heat|Hidden|Quick Tech|Full Tech|AI|Skirmish|Barrage|Arcing|Armor-Piercing|Inaccurate|Loading|Ordnance|Protocols|Protocol|Overkill|Overshield|Reliable|Seeking|Smart|Thrown|Active|Danger Zone|Deployable|Grenade|Invade|Invasion|Fragment Signal|Mine|Mod|Reaction|Shield|Burn|Kinetic|Explosive|Energy|Exposed|Repair|Intangible|Immunity|Charges|Charge|Stabilize|Bolster|AP|Invisible)\b",
-  ): it => context if (keywordable_text.get() and not disable_keyword.get()) { Keyword(it) } else { it }
+    "\b(Accuracy|Difficulty|Grit|HP|Size|Evasion|E-Defense|Speed|Hit Points|Hull|Agility|Systems|Engineering|Frame|Size|Armor|Core System|Mounts|Main|Auxiliary|Heavy|Superheavy|CQB|Rifle|Rifles|Launcher|Launchers|Cannon|Cannons|Nexus|Threat|CP|Core Power|SP|System Points|Full Repair|Structure|Repair|Sensors|Tech Attack|Stress|Save Target|Boost|Boosts|Range|Overwatch|Grappling|Improvised Attacks|Knockback|Grapple|Ram|Stunned|Immobilized|Prone|Impaired|Slowed|Lock On|Drone|Drones|Shredded|Engaged|Melee|Resistance|Line|Burst|Blast|Cone|Limited|Jammed|Mount|Dismount|Shut Down|H eat|Hidden|Quick Tech|Full Tech|AI|Skirmish|Barrage|Arcing|Armor-Piercing|Inaccurate|Loading|Ordnance|Protocols|Protocol|Overkill|Overshield|Reliable|Seeking|Smart|Thrown|Active|Danger Zone|Deployable|Grenade|Invade|Invasion|Fragment Signal|Mine|Mod|Reaction|Shield|Burn|Kinetic|Explosive|Energy|Exposed|Repair|Intangible|Immunity|Charges|Charge|Stabilize|Bolster|AP|Invisible|Heat|Cap)\b",
+  ): it => context if (not disable_keyword.get()) { Keyword(it) } else { it }
   show regex("\bE-Defence\b"): "E-Defense" //(This spelling is used in Liminal Space at least.)
   s
 }
