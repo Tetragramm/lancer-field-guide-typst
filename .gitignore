@@ -1,0 +1,7 @@
+*.json
+*.ttf
+*.otf
+*.txt
+*.pdf
+!Field Guide to Field Guides.
+LICENSE*

@@ -213,21 +213,28 @@
       scope: "parent",
       outlined: false,
       align(
-        right,
+        left,
         layout(sz => cetz.canvas(length: sz.width, {
           import cetz.draw: *
-          line((-0.75, 0), (1, 0), stroke: white)
-          line(
-            (-0.75in, 0),
-            (0.95, 0),
-            (0.95, -0.04),
-            (0.92, -0.08),
-            (-0.75in, -0.08),
-            close: true,
-            stroke: red,
+          content((0, 0), name: "txt", anchor: "north-west", box(
+            width: 104% * sz.width,
             fill: red,
+            outset: (left: 0.75in),
+            inset: (top: 0.1in, bottom: 0.2in),
+          )[#text(
+              fill: white,
+              size: 32pt,
+            )[#NoKeyword()[#upper(it.body)]
+            ]
+          ])
+          line(
+            "txt.south-east",
+            (rel: (-0.5in, 0)),
+            (rel: (0.5in, 0.3in)),
+            close: true,
+            stroke: white,
+            fill: white,
           )
-          content((0, -0.04), anchor: "mid-west", [#text(fill: white, size: 36pt)[#NoKeyword()[#upper(it.body)]]])
         })),
       ),
     )
@@ -263,7 +270,7 @@
 #let local-outline(..args) = context {
   show outline.entry: it => {
     v(0.3em, weak: true)
-    [*#upper(it.element.body) #h(1fr) #it.element.location().page()*]
+    NoKeyword[*#upper(it.element.body) #h(1fr) #it.element.location().page()*]
   }
   outline(
     target: selector(heading)
@@ -320,6 +327,44 @@
       ]
     ])),
   ))
+}
+
+#let SubSection(name, sub-text) = {
+  show heading.where(level: 2): it => {
+    pagebreak(weak: true)
+    figure(
+      placement: top,
+      scope: "parent",
+      outlined: false,
+      align(
+        left,
+        layout(sz => cetz.canvas(length: sz.width, {
+          import cetz.draw: *
+          content((0, 0), name: "txt", anchor: "north-west", box(
+            width: 104% * sz.width,
+            fill: red,
+            outset: (left: 0.75in),
+            inset: (top: 0.1in, bottom: 0.1in),
+          )[#text(
+              fill: white,
+              size: 32pt,
+            )[#NoKeyword()[#upper(it.body)]
+            ]\
+            #text(fill: white, size: 18pt, sub-text)])
+          line(
+            "txt.south-east",
+            (rel: (-0.4in, 0)),
+            (rel: (0.4in, 0.4in)),
+            close: true,
+            stroke: white,
+            fill: white,
+          )
+        })),
+      ),
+    )
+    v(-1em)
+  }
+  heading(level: 2, name)
 }
 
 #let FullPageImageFramed(img) = {

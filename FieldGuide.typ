@@ -24,6 +24,7 @@
   //Functions
   Lancer,
   Section,
+  SubSection,
   ImportLCP,
   Keyword,
   NoKeyword,
