@@ -881,7 +881,9 @@
     if ("val" in tval) {
       name = name.replace("{VAL}", str(tval.val))
     }
-    tech.push(name)
+    if (not tag.at("hidden", default: false)) {
+      tech.push(name)
+    }
   }
   tech
 }
@@ -1569,6 +1571,13 @@
     message: "core_system needs the field: blocks, an array of blocks representing the core_system, may be empty",
   )
 
+  let FormatTechAttack(ta) = {
+    if (ta < 0) {
+      [#ta]
+    } else {
+      [+#ta]
+    }
+  }
 
   //Create the statblock. Short little two colum thing.
   //Matches the stats from frames.json
@@ -1588,7 +1597,7 @@
       *Sensors:* #stats.sensor_range\
       #text(fill: red)[*SYSTEMS*]\
       #h(1em);*E-Defense:* #stats.edef\
-      #h(1em);*Tech Attack:* #stats.tech_attack\
+      #h(1em);*Tech Attack:* #FormatTechAttack(stats.tech_attack)\
       #h(1em);*SP:* #stats.sp\
       #text(fill: red)[*ENGINEERING*]\
       #h(1em);*Heat Cap:* #stats.heatcap
