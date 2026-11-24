@@ -428,14 +428,16 @@
 }
 
 #let LancerTable(title: str, instructions: str, fill_function: calc.odd, ..tableargs) = {
-  box(
+  block(
     width: 100%,
     fill: red,
     inset: 0.5em,
-    box(
+    // breakable: true,
+    block(
       width: 100%,
       fill: white,
       inset: 0.5em,
+      // breakable: true,
       [
         #text(size: 16pt)[*#upper(title)*] #h(1fr) #text(fill: tablegrey.darken(40%))[*#upper(instructions)*]
         #v(-1em)
